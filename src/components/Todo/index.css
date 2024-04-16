@@ -23,7 +23,8 @@
 
   .todo-item {
     cursor: pointer;
-    margin-bottom: 15px;
+    margin-bottom: 25px;
+    /* border-bottom: 1px solid rgb(236, 230, 230); */
   }
   
   .todo-item:hover {

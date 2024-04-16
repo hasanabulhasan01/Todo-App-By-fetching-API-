@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./index.css";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -7,6 +7,8 @@ function Todo() {
   const [todoList, setTodoList] = useState([]);
   const [usersData, setUsersData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [clicks, setClicks] = useState(0)
+  const [todo, setTodo] = useState([])
 
   const handleFetchTodos = async () => {
     try {
@@ -16,10 +18,11 @@ function Todo() {
       );
       const data = await response.json();
       console.log("Todo Data.....", data);
-      setTodoList(data.slice(0, 60));
+      setTodoList(data.slice(0, 100));
       setLoading(false);
     } catch (error) {
       console.error("Error fetching todos:", error);
+      toast.dark("Error Fetching todos");
       setLoading(false);
     }
     handleFetchUsers();
@@ -35,10 +38,30 @@ function Todo() {
       setUsersData(users);
     } catch (error) {
       console.error("Error fetching users data:", error);
+      toast.dark("Error Fetching User Data");
     }
   };
 
-  const handleTodoClick = (todo) => {
+  useEffect(() => {
+    let singleClickTimer;
+    if (clicks === 1) {
+      singleClickTimer = setTimeout(function() {
+        handleSingleClick(todo)
+        setClicks(0);
+      }, 250);
+    } else if (clicks === 2) {
+        handleDoubleClick(todo.id)
+        setClicks(0);
+    }
+    return () => clearTimeout(singleClickTimer);
+  }, [clicks]);
+
+  const handleOnClick= (e) =>{
+    setClicks(clicks + 1)
+    setTodo(e)
+  }
+
+  const handleSingleClick = (todo) => {
     console.log(todo, "todo clicked");
     const selectedUser = usersData.find((user) => user.id === todo.userId);
 
@@ -73,8 +96,9 @@ function Todo() {
             <li
               key={todo.id}
               className="todo-item"
-              onClick={() => handleTodoClick(todo)}
-              onDoubleClick={() => handleDoubleClick(todo.id)}
+              onClick={() => handleOnClick(todo)}
+              // onClick={() => handleTodoClick(todo)}
+              // onDoubleClick={() => handleDoubleClick(todo.id)}
             >
               {todo.title}
             </li>
